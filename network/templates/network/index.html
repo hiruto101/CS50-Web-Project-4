@@ -1,5 +1,63 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    {% if user.is_authenticated %}
+        <form action="{% url 'post' %}" method="POST">
+            {% csrf_token %} 
+            <div class="mb-3 mx-3">
+                <label for="exampleFormControlTextarea1" class="form-label mb-0"><span class="formated_span">New Post</span></label>
+                <textarea name="content" class="form-control txt-rs" id="exampleFormControlTextarea1" rows="3"></textarea>
+                <button type="submit" class="btn btn-primary mt-1">Post</button>
+            </div>
+        </form>
+    {% endif %}
+    <div id="content" style="margin: 20px">
+    {% for post in posts %}
+        <div style="flex:1;">
+            <h4>{{ post.author }}</h4>
+            <h6>{{ post.date }}</h6>
+            <p>{{ post.content }}</p>
+            <hr>
+        </div>
+        {% endfor %}
+    </div>    
+    <hr>
+    <div>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-link"><a href="?page=1">&laquo; first</a></li>
+                {% if posts.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                
+                {% for page_number in posts.paginator.page_range %}
+                    <li class="page-link"><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+                {% endfor %}
+            
+                {% if posts.has_next %}
+                    <li class="page-link"><a href="?page={{ posts.next_page_number }}">next</a></li>
+                {% endif %}
+                <li class="page-link"><a href="?page={{ posts.paginator.num_pages }}">last &raquo;</a></li>
+            </ul>
+        </nav>
+        Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+    </div>
 {% endblock %}
+
+<div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
