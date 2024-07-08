@@ -1,6 +1,6 @@
 {% extends "network/layout.html" %}
 {% block hmiddle %}
-    <span style="font-weight: bold; font-size: 28px;">{{user.username}}'s Profile</span>
+<h1> <a class="nav-link" href="{% url 'profile' %}"><strong>{{ user.username }}'s Profile</strong></a> </h1>
 {% endblock %}
 
 {% block body %}
@@ -19,10 +19,10 @@
 <div style="flex:1;">
     <h4>{{ post.author }}</h4>
     <h6>{{ post.date }}</h6>
-    <p>{{ post.content }}</p>
-    {% if post.author == user.username %}
-        edit button
-    {% endif %}
+    <textarea id="txt-edit-{{ post.id }}" disabled data-post-id="{{post.id}}" style="background-color: transparent; border: none; resize:none; width: 500px; height: auto; padding: 8px; border: 8px;">{{ post.content }}</textarea>
+        {% if post.author == user %}
+            <button id="edit{{post.id}}" onclick="testing({{post.id}})">Edit</button>
+        {% endif %}
     <hr>
 </div>
 {% endfor %}
@@ -46,7 +46,7 @@
         <li class="page-link"><a href="?page={{ posts.paginator.num_pages }}">last &raquo;</a></li>
     </ul>
 </nav>
-Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
+Page {{ posts.number }} ofs {{ posts.paginator.num_pages }}.
 </div>
 {% endblock %}
 

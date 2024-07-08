@@ -1,27 +1,51 @@
 {% extends "network/layout.html" %}
-
 {% block body %}
+{% csrf_token %}
+    <h1> <a class="nav-item"><strong>All Posts</strong></a> </h1>
+    <hr style="border-color: black; border-style: solid; width: 50%;">
     {% if user.is_authenticated %}
         <form action="{% url 'post' %}" method="POST">
             {% csrf_token %} 
-            <div class="mb-3 mx-3">
+            <div class="mb-4 mx-4">
                 <label for="exampleFormControlTextarea1" class="form-label mb-0"><span class="formated_span">New Post</span></label>
-                <textarea name="content" class="form-control txt-rs" id="exampleFormControlTextarea1" rows="3"></textarea>
+                <textarea name="content" class="form-control txt-rs" id="exampleFormControlTextarea1" rows="7"></textarea>
                 <button type="submit" class="btn btn-primary mt-1">Post</button>
             </div>
         </form>
+        <hr style="border-color: black; border-style: solid; width: 80%; margin-bottom: 90px;">
     {% endif %}
-    <div id="content" style="margin: 20px">
     {% for post in posts %}
-        <div style="flex:1;">
-            <h4>{{ post.author }}</h4>
-            <h6>{{ post.date }}</h6>
-            <p>{{ post.content }}</p>
-            <hr>
+    <div class="post">
+        <div class="item item-head">
+            <div class="item-head-left">{{post.author}}</div>
+            <div class="item-head-right">{{post.date}}</div>
         </div>
-        {% endfor %}
-    </div>    
-    <hr>
+        <div class="item item-body"><textarea id="content-{{post.id}}" class="content" disabled>{{post.content}}</textarea></div>
+        <br>
+        <div class="item item-foot">
+            <div class="item ft-ch-item">
+                Likes <scope id="n_like{{post.id}}">{{post.lcount}}</scope>
+            </div>
+            <div class="item ft-ch-item">
+                {% if user.is_authenticated %}
+                {% if post.id in likelists %}
+                    <button type="button" data-post-id="{{post.id}}" id="btn-like{{post.id}}" style="color: red;" class="btn btn-info fa fa-thumbs-o-up like" onclick="like({{post.id}})"> Unlike</button>
+                {% else %}
+                    <button type="button" id="btn-like{{post.id}}" class="btn btn-info fa fa-thumbs-o-up like" onclick="like({{post.id}})"> Like</button>
+                {% endif %}
+            {% endif %}
+            </div>
+            <div class="item ft-ch-item">
+                {% if post.author == user %}
+                    Edit
+                {% else %}
+                    Cannot
+                {% endif %}
+   
+            </div>
+        </div>
+    </div>
+    {% endfor %}
     <div>
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-center">
@@ -30,9 +54,9 @@
                     <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a></li>
                 {% endif %}
                 
-                {% for page_number in posts.paginator.page_range %}
+                <!-- {% for page_number in posts.paginator.page_range %}
                     <li class="page-link"><a href="?page={{ page_number }}">{{ page_number }}</a></li>
-                {% endfor %}
+                {% endfor %} -->
             
                 {% if posts.has_next %}
                     <li class="page-link"><a href="?page={{ posts.next_page_number }}">next</a></li>
@@ -43,21 +67,3 @@
         Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
     </div>
 {% endblock %}
-
-<div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
-        {% endif %}
-    </span>
-</div>

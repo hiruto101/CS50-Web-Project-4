@@ -1,45 +1,54 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.core.paginator import Paginator
+from django.db.models import Count
+import json
 
-from .models import User, Post
+from .models import User, Post, Like
 
 
 def index(request):
-    post = Post.objects.all().order_by('-date')
-    paginator = Paginator(post, 10)
-    
-    # create a list of pages
-    num_pages = [x for x in range(1, paginator.count + 1)]
-    
+    posts = Post.objects.all().order_by('-date').annotate(lcount=Count('likes'))
+    like_list = Like.objects.all()
+    paginator = Paginator(posts, 10)
+    user_liked = []
+    try:
+        print("this like", posts[0].like_count())
+    except:
+        print("none")
+            
+    try:
+        for like in like_list:
+            if like.user.id == request.user.id:
+                user_liked.append(like.post.id)
+    except:
+        user_liked = []
+        
+        
     page_number = request.GET.get('page')
-    posts = paginator.get_page(page_number)
-    #print(f"DEBUG", num_pages)
+    postinator = paginator.get_page(page_number)
+
     return render(request, "network/index.html", {
-        "posts":posts,
-        "pages": num_pages
+        "posts":postinator,
+        "likelists":user_liked
     })
 
 
 def profile(request):
     posts = Post.objects.filter(author = request.user).order_by('-date')
     paginator = Paginator(posts, 10)
-    print(f"Debug2", paginator.num_pages)
+    
+    
     # create a list of pages
-    if(paginator.num_pages <= 1):
-        num_pages = [1]
-    else:
-        num_pages = [x for x in range(1, paginator.count + 1)]
     
     page_number = request.GET.get('page')
     posts = paginator.get_page(page_number)
     
     return render(request, "network/profile.html", {
         "posts":posts,
-        "pages": num_pages
     })
 
 
@@ -63,8 +72,58 @@ def post(request):
         return HttpResponseRedirect(reverse("index"))
     
 
-def edit(request):
-    pass
+def edit(request, post_id):
+    if request.method == "POST":
+        raw_data = request.body
+        data = json.loads(raw_data)
+        
+        print(data['content'], post_id)
+    return JsonResponse({"message": "Edited"})
+
+# Set Like or Unlike
+def like(request, post_id):
+    if request.method == "POST":
+        
+        data = json.loads(request.body)
+        post = Post.objects.get(pk=post_id)
+        user = User.objects.get(pk = request.user.id)
+        n_like = ""
+        
+        try:
+            like_user = User.objects.get(id = request.user.id)
+            like_post = Post.objects.get(id = post_id)
+        except User.DoesNotExist:
+            print("User does not exist")
+        except Post.DoesNotExist:
+            print("Post does not exist")
+            
+        like = Like(user=like_user, post=like_post)
+        
+        if data["stat"] == "like":
+            try:
+                like.save()
+                post.likes.add(user)
+                n_like = Like.objects.filter(post = post).count()
+                print("Liked ", n_like)
+                return JsonResponse({"message": "liked",
+                                     "likes": n_like})
+            except Exception as e:
+                print(f"Error: {e}")
+                return JsonResponse({"Error": "Already Liked"})
+        else:
+            try:
+                unlike = Like.objects.filter(user=like_user, post = like_post)
+                unlike.delete()
+                post.likes.remove(user)
+                n_like = Like.objects.filter(post = post).count()
+                print("Unlike: ", n_like)
+                return JsonResponse({"message": "unlike",
+                                     "likes": n_like})
+            except Exception as e:
+                print(f"Error: {e}")
+                return JsonResponse({"Error": "Delete Error"})
+    #GET
+    return JsonResponse({"message": "GET"})
 
 
 def login_view(request):
