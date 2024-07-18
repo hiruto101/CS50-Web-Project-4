@@ -5,8 +5,8 @@
 
 body{
     background-color: rgb(29, 27, 27);
-    margin-left: 300px;
-    margin-right: 300px;
+    margin-left: 500px;
+    margin-right: 500px;
     height: 95vh;
     display: flex;
     flex-direction: column;
@@ -18,18 +18,7 @@ header{
     min-width: 800px;
     /* border: 1px solid lightblue; */
 }
-.header-main {
-    height: 200px;
-    /* width: 400px */
-}
 
-
-main {
-    background-image: linear-gradient(to bottom, rgb(48, 47, 47), rgb(29, 27, 27));
-    width: 800px;
-    padding: 3em 0 3em 0;
-    flex: 20 20 150px;
-}
 
 
 footer {
@@ -42,40 +31,46 @@ footer {
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
-} */
-
-
+    } */
+    
+    
 .main {
     display: flex;
-    flex: 1;
-    overflow-y:inherit;
-    min-width: 800px;
-    flex-direction: row;
     border-top: none;
+    position: relative;
+    min-width: 800px;
     margin: 0px 200px 0px 200px;
 }
+    
+main {
+    background-image: linear-gradient(to bottom, rgb(48, 47, 47), rgb(29, 27, 27));
+    padding: 3em 0 3em 0;
+    flex: 20 20 150px;
+    z-index: 10;
+}
+
 
 .left,
 .right{
     margin: 0px 150px 0px 150px;
     position: fixed;
     width: 300px;
-    flex: 0 0 auto;
     top: 0;
     bottom: 0;
 }
 
 .left{
-    left: 0;
+    left: 150px;
     padding: 3em 0 3em 0;
-    flex: 5 5 200px;
+    z-index: 5;
 }
 
 .right{
-    right: 0;
+    right: 150px;
+    left: calc(100% - 750px);
     padding: 3em 0 3em 0;
     flex: 5 5 200px;
-    /* border: solid white; */
+    z-index: 4;
 }
 
 
@@ -118,6 +113,12 @@ footer {
     margin: 0px 50px 50px 50px;
     background-color: rgba(134, 40, 23, 0.5);
 }
+
+textarea:focus {
+    outline: 2px solid black;
+
+}
+
 .item {
     flex-shrink: 0;
     flex: 1 0 auto;
@@ -131,7 +132,6 @@ footer {
     padding-bottom: 5px;
     border-bottom: groove grey;
     border-width: 10%;
-    
 }
 
 .item-head-left {
@@ -143,21 +143,47 @@ footer {
 }
 .item-body {
     flex-grow: 1;
+    padding-top: 10px;
     color: rgb(15, 14, 14);
     border-bottom: groove grey;
 }
 
 .item-foot {
     display: flex;
+    overflow: auto;
+    width: calc(100% - 50px);
     align-items: center;
     flex-direction: row;
     padding-bottom: 5px;
 }
+
+textarea:focus {
+    outline: 2px solid black;
+    background-color: grey;
+}
 .content {
     background-color: transparent;
-    width: 690px;
+    width: calc(100% - 40px);
     height: 170px;
     border: none;
     resize: none;
     padding: 10px 10px 5px 5px;
+}
+
+
+/* MIDDLE Header STYLE */
+
+.middle-header {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0px 50px 50px 50px;
+}
+.middle-header-item {
+    align-items: center;
+}
+.mh-item1 {
+    height: 100px;
+    color: blue;
 }

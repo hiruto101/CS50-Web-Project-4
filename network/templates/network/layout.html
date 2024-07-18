@@ -27,16 +27,17 @@
         <div class="main">
             <aside class="left" id="left">
                 <nav class="navbar mr-auto d-flex flex-column justify-content-center">
-                    <a class="navbar-brand"  href="{% url 'index' %}">  Network</a>
+                    <a class="navbar-brand">  Network</a>
                     <hr style="border-color: black; border-style: solid; width: 50%;">
                     <div class="navbar">
                         <ul class="navbar-nav">
+                        {% block user %} {%endblock%}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'index' %}">All Posts</a>
                         </li>
                         {% if user.is_authenticated %}
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Following</a>
+                                <a class="nav-link" href="{% url 'followpost' %}">Following</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
@@ -54,6 +55,8 @@
                     </nav>
             </aside> <!--LEFT-->
             <main>
+                <div>{% block middle %}
+                    {% endblock %}</div>
                 {% block body %}
                 {% endblock %}
             </main>
@@ -61,9 +64,9 @@
                 RIGHT
             </aside>
         </div>
-        <footer>
+        <!-- <footer>
            {% block footer %}
            {% endblock %}
-        </footer>
+        </footer> -->
     </body>
 </html>

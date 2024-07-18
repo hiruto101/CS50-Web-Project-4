@@ -10,7 +10,8 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author")
     content = models.CharField(max_length= 300)
     date = models.DateTimeField(auto_now_add=True)
-    likes = models.ManyToManyField(User, related_name="likes")
+    likes = models.ManyToManyField(User, blank=True, related_name="likes")
+    # profile_picture = models.ImageField() #TODO
     
     def like_count(self):
         return len(self.likes.count())
@@ -26,3 +27,13 @@ class Like(models.Model):
     
     class Meta:
         unique_together = ('user', 'post')
+        
+
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follow_user")
+    follower = models.ManyToManyField(User, related_name="following")
+    
+    def __str__(self):
+        follower_count = self.follower.count()
+        return f"User: {self.user} Has {follower_count} Followers"
+    

@@ -11,19 +11,8 @@
 
 {% csrf_token %}
 
-    <h1> <a class="nav-item"><strong>All Posts</strong></a> </h1>
+    <h1> <a class="nav-item"><strong>Posts of Following Users</strong></a> </h1>
     <hr style="border-color: black; border-style: solid; width: 50%;">
-    {% if user.is_authenticated %}
-        <form action="{% url 'post' %}" method="POST">
-            {% csrf_token %} 
-            <div class="mb-4 mx-4">
-                <label for="exampleFormControlTextarea1" class="form-label mb-0"><span class="formated_span">New Post</span></label>
-                <textarea name="content" class="form-control txt-rs" id="exampleFormControlTextarea1" rows="7"></textarea>
-                <button type="submit" class="btn btn-primary mt-1">Post</button>
-            </div>
-        </form>
-        <hr style="border-color: black; border-style: solid; width: 80%; margin-bottom: 90px;">
-    {% endif %}
     {% for post in posts %}
     <div class="post">
         <div class="item item-head">
@@ -48,7 +37,7 @@
             <div class="item ft-ch-item">
                 {% if post.author == user %}
                     <button class="btn btn-info" id="editbtn-{{post.id}}" type="button" onclick="edit({{post.id}})">Edit</button>
-                    <!-- <button style="margin-left: 50px;" class="btn btn-info" id="deletebtn-{{post.id}}" type="button" onclick="">Delete</button> -->
+                    <button class="btn btn-info" id="deletebtn-{{post.id}}" type="button" onclick="">Delete</button>
                     <button class="btn btn-info" id="savebtn-{{post.id}}" type="button" onclick="save({{post.id}})" hidden>Save</button>
                 {% endif %}
             </div>

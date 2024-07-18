@@ -1,52 +1,93 @@
 {% extends "network/layout.html" %}
 {% block hmiddle %}
-<h1> <a class="nav-link" href="{% url 'profile' %}"><strong>{{ user.username }}'s Profile</strong></a> </h1>
-{% endblock %}
 
+{% endblock %}
+{% block middle %}
+    <div class="middle-header">
+      <div class="middle-header-item mh-item1">
+        <h1>{{nam|capfirst}}'s Profile</h1>
+      </div>
+      <div class="middle-header-item">
+        {% csrf_token %}
+        {% if request.user.username != nam %}
+            {% if is_following %}
+            <button id="btn-unfollow" data-user-id="{{userId}}" class="btn btn-info btn-unfollow" onclick="unfollow(this.dataset.userId)">Unfollow</button>
+            <button hidden id="btn-unfollow" data-user-id="{{userId}}" class="btn btn-info btn-follow" onclick="follow(this.dataset.userId)">Follow</button>
+            {% else %}
+            <button id="btn-follow" data-user-id="{{userId}}" class="btn btn-info btn-follow" onclick="follow(this.dataset.userId)">Follow</button>
+            <button hidden id="btn-unfollow" data-user-id="{{userId}}" class="btn btn-info btn-unfollow" onclick="unfollow(this.dataset.userId)">Unfollow</button>
+            {% endif %}
+        {% endif %}
+        <br>
+        Follower(s) <span id="follower-count">{{follower}}</span> ----------- Following <span>{{following}}</span>
+      </div>
+    </div>
+{% endblock %}
 {% block body %}
 {% if user.is_authenticated %}
 <form action="{% url 'post' %}" method="POST">
     {% csrf_token %} 
-    <div class="mb-3 mx-3">
+    <div class="mb-4 mx-4">
         <label for="exampleFormControlTextarea1" class="form-label mb-0"><span class="formated_span">New Post</span></label>
-        <textarea name="content" class="form-control txt-rs" id="exampleFormControlTextarea1" rows="3"></textarea>
+        <textarea name="content" class="form-control txt-rs" id="exampleFormControlTextarea1" rows="7"></textarea>
         <button type="submit" class="btn btn-primary mt-1">Post</button>
     </div>
 </form>
+<hr style="border-color: black; border-style: solid; width: 80%; margin-bottom: 90px;">
 {% endif %}
 <div id="content" style="margin: 20px">
-{% for post in posts %}
-<div style="flex:1;">
-    <h4>{{ post.author }}</h4>
-    <h6>{{ post.date }}</h6>
-    <textarea id="txt-edit-{{ post.id }}" disabled data-post-id="{{post.id}}" style="background-color: transparent; border: none; resize:none; width: 500px; height: auto; padding: 8px; border: 8px;">{{ post.content }}</textarea>
-        {% if post.author == user %}
-            <button id="edit{{post.id}}" onclick="testing({{post.id}})">Edit</button>
-        {% endif %}
-    <hr>
-</div>
-{% endfor %}
+    {% for post in posts %}
+    <div class="post">
+        <div class="item item-head">
+            <a href="{% url 'profile' id=post.id %}"><div class="item-head-left">{{post.author}}</div></a>
+            <div class="item-head-right">{{post.date}}</div>
+        </div>
+        <div class="item item-body"><textarea id="content-{{post.id}}" class="content" disabled>{{post.content}}</textarea></div>
+        <br>
+        <div class="item item-foot">
+            <div class="item ft-ch-item">
+                Likes <scope id="n_like{{post.id}}">{{post.lcount}}</scope>
+            </div>
+            <div class="item ft-ch-item">
+                {% if user.is_authenticated %}
+                {% if post.id in likelists %}
+                    <button type="button" data-post-id="{{post.id}}" id="btn-like{{post.id}}" style="color: red;" class="btn btn-info fa fa-thumbs-o-up like" onclick="like({{post.id}})"> Unlike</button>
+                {% else %}
+                    <button type="button" id="btn-like{{post.id}}" class="btn btn-info fa fa-thumbs-o-up like" onclick="like({{post.id}})"> Like</button>
+                {% endif %}
+            {% endif %}
+            </div>
+            <div class="item ft-ch-item">
+                {% if post.author == user %}
+                    <input type="hidden" value="{{post.id}}">
+                    <button class="btn btn-info" id="editbtn-{{post.id}}" type="button" onclick="edit({{post.id}})">Edit</button>
+                    <button class="btn btn-info" id="savebtn-{{post.id}}" type="button" onclick="save({{post.id}})" hidden>Save</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>    
-<hr>
+
 <div>
-<nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        <li class="page-link"><a href="?page=1">&laquo; first</a></li>
-        {% if posts.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a></li>
-        {% endif %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-link"><a href="?page=1">&laquo; first</a></li>
+            {% if posts.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            
+            <!-- {% for page_number in posts.paginator.page_range %}
+                <li class="page-link"><a href="?page={{ page_number }}">{{ page_number }}</a></li>
+            {% endfor %} -->
         
-        {% for page_number in posts.paginator.page_range %}
-            <li class="page-link"><a href="?page={{ page_number }}">{{ page_number }}</a></li>
-        {% endfor %}
-    
-        {% if posts.has_next %}
-            <li class="page-link"><a href="?page={{ posts.next_page_number }}">next</a></li>
-        {% endif %}
-        <li class="page-link"><a href="?page={{ posts.paginator.num_pages }}">last &raquo;</a></li>
-    </ul>
-</nav>
-Page {{ posts.number }} ofs {{ posts.paginator.num_pages }}.
+            {% if posts.has_next %}
+                <li class="page-link"><a href="?page={{ posts.next_page_number }}">next</a></li>
+            {% endif %}
+            <li class="page-link"><a href="?page={{ posts.paginator.num_pages }}">last &raquo;</a></li>
+        </ul>
+    </nav>
+    Page {{ posts.number }} of {{ posts.paginator.num_pages }}.
 </div>
 {% endblock %}
 
